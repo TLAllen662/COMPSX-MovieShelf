@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import ErrorMessage from '../components/ErrorMessage';
+import LoadingSpinner from '../components/LoadingSpinner';
 import MovieGrid from '../components/MovieGrid';
 import { getPopularMovies, searchMovies } from '../services/tmdb';
 
@@ -51,13 +53,9 @@ function Home({ searchQuery }) {
         </p>
       </div>
       {error ? (
-        <div className="empty-state">
-          <p>{error}</p>
-        </div>
+        <ErrorMessage message={error} />
       ) : isLoading ? (
-        <div className="empty-state">
-          <p>Loading movies...</p>
-        </div>
+        <LoadingSpinner />
       ) : movies.length > 0 ? (
         <MovieGrid movies={movies} />
       ) : (

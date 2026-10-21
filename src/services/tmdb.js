@@ -17,3 +17,20 @@ export async function getPopularMovies() {
   const data = await response.json();
   return data.results;
 }
+
+export async function searchMovies(query) {
+  if (!apiKey || !baseUrl) {
+    throw new Error('TMDB API configuration is missing.');
+  }
+
+  const response = await fetch(
+    `${baseUrl}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}`
+  );
+
+  if (!response.ok) {
+    throw new Error(`Unable to search movies (${response.status}).`);
+  }
+
+  const data = await response.json();
+  return data.results;
+}

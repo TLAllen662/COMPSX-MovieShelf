@@ -1,35 +1,69 @@
 import { useEffect, useState } from 'react';
 import MovieGrid from '../components/MovieGrid';
-import { getPopularMovies } from '../services/tmdb';
+import { getPopularMovies, searchMovies } from '../services/tmdb';
 
-function Home() {
+function Home({ searchQuery }) {
   const [movies, setMovies] = useState([]);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function loadPopularMovies() {
+    let isCurrentRequest = true;
+
+    async function loadMovies() {
+      setError('');
+      setIsLoading(true);
+
       try {
-        setMovies(await getPopularMovies());
+        const results = searchQuery.trim()
+          ? await searchMovies(searchQuery)
+          : await getPopularMovies();
+
+        if (isCurrentRequest) {
+          setMovies(results);
+        }
       } catch (requestError) {
-        setError(requestError.message);
+        if (isCurrentRequest) {
+          setError(requestError.message);
+        }
+      } finally {
+        if (isCurrentRequest) {
+          setIsLoading(false);
+        }
       }
     }
 
-    loadPopularMovies();
-  }, []);
+    loadMovies();
+
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, [searchQuery]);
 
   return (
     <main className="main-content">
       <div className="content-header">
-        <h2>Popular Movies</h2>
-        <p>Discover and save your favorite films</p>
+        <h2>{searchQuery.trim() ? 'Search Results' : 'Popular Movies'}</h2>
+        <p>
+          {searchQuery.trim()
+            ? `Results for "${searchQuery.trim()}"`
+            : 'Discover and save your favorite films'}
+        </p>
       </div>
       {error ? (
         <div className="empty-state">
           <p>{error}</p>
         </div>
-      ) : (
+      ) : isLoading ? (
+        <div className="empty-state">
+          <p>Loading movies...</p>
+        </div>
+      ) : movies.length > 0 ? (
         <MovieGrid movies={movies} />
+      ) : (
+        <div className="empty-state">
+          <p>No movies found.</p>
+        </div>
       )}
     </main>
   );

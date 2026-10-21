@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-function Header() {
+function Header({ searchQuery, onSearchQueryChange }) {
   return (
     <header className="header">
       <div className="header-content">
@@ -14,6 +14,8 @@ function Header() {
             type="text" 
             placeholder="Search movies..."
             className="search-input"
+            value={searchQuery}
+            onChange={(event) => onSearchQueryChange(event.target.value)}
           />
           <button className="search-button">Search</button>
         </div>
